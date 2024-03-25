@@ -37,3 +37,9 @@ Please use the following message to generate music for videos in BGM909.
 ```
 python polyffusion/inference_sdf.py --model_dir=[model_dir] --uncond_scale=5.
 ```
+
+## 4. Test
+
+To reproduce the metrics in our original paper, please refer to `/polyffusion/test.ipynb`.
+
+We provide the generation results [here](https://drive.google.com/drive/folders/1kYQLAmw8-zyBx43RW7aUSE8VXcFDxkez?usp=sharing).
