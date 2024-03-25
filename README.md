@@ -4,6 +4,8 @@ Official implementation for CVPR 2024 paper: **Diff-BGM: A Diffusion Model for V
 
 By Sizhe Li, Yiming Qin, Minghang Zheng, Xin Jin, Yang Liu.
 
+![](./Diff-BGM.png)
+
 - Thanks for the code structure from [Polyffusion](https://github.com/aik2mlj/polyffusion/tree/sdf_prmat2c%2Bpop909)
 
 ## 1. Installation
