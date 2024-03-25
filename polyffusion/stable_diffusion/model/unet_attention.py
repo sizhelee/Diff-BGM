@@ -72,8 +72,6 @@ class SpatialTransformer(nn.Module):
         :param cond: is the conditional embeddings of shape `[batch_size,  n_cond, d_cond]`
         """
         # Get shape `[batch_size, channels, height, width]`
-        # import pdb
-        # pdb.set_trace()
         b, c, h, w = x.shape
         # For residual connection
         x_in = x
@@ -202,9 +200,6 @@ class CrossAttention(nn.Module):
         if not has_cond:
             cond = x
 
-        # import pdb
-        # pdb.set_trace()
-
         # Get query, key and value vectors
         q = self.to_q(x)
         k = self.to_k(cond)
@@ -278,8 +273,6 @@ class CrossAttention(nn.Module):
         k = k.view(*k.shape[: 2], self.n_heads, -1)
         v = v.view(*v.shape[: 2], self.n_heads, -1)
 
-        # # import pdb
-        # # pdb.set_trace()
         w_size = 2
         seg_len = q.shape[1]
         mask_one = torch.zeros(q.shape[1], k.shape[1])

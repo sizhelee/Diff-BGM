@@ -13,14 +13,6 @@ class Polyffusion_SDF(nn.Module):
         self,
         ldm: LatentDiffusion,
         cond_type,
-        cond_mode="cond",
-        chord_enc=None,
-        chord_dec=None,
-        visual_enc=None,
-        pnotree_enc=None,
-        pnotree_dec=None,
-        txt_enc=None,
-        concat_blurry=False,
         concat_ratio=1 / 8
     ):
         """
@@ -33,34 +25,9 @@ class Polyffusion_SDF(nn.Module):
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
         self.ldm = ldm
         self.cond_type = cond_type
-        self.cond_mode = cond_mode
-        self.chord_enc = chord_enc
-        self.chord_dec = chord_dec
-        self.pnotree_enc = pnotree_enc
-        self.pnotree_dec = pnotree_dec
-        self.txt_enc = txt_enc
-        self.visual_enc = visual_enc
-        self.concat_blurry = concat_blurry
         self.concat_ratio = concat_ratio
 
         self.caption_enc = nn.Linear(in_features=768, out_features=512, bias=True)
-
-        # Freeze params for pretrained chord enc and dec
-        if self.chord_enc is not None:
-            for param in self.chord_enc.parameters():
-                param.requires_grad = False
-        if self.chord_dec is not None:
-            for param in self.chord_dec.parameters():
-                param.requires_grad = False
-        if self.pnotree_enc is not None:
-            for param in self.pnotree_enc.parameters():
-                param.requires_grad = False
-        if self.pnotree_dec is not None:
-            for param in self.pnotree_dec.parameters():
-                param.requires_grad = False
-        if self.txt_enc is not None:
-            for param in self.txt_enc.parameters():
-                param.requires_grad = False
 
     @classmethod
     def load_trained(
@@ -194,23 +161,16 @@ class Polyffusion_SDF(nn.Module):
         z_y is the stuff the diffusion model needs to learn
         """
         prmat2c, pnotree, chord, prmat, visual, caption, shot_cnt = batch
-        # import pdb
-        # pdb.set_trace()
-        if self.cond_type == "chord":
-            # cond = self._encode_chord(chord)
-            # cond = self._encode_video(visual)
+        if self.cond_type == "visual":
             cond = visual     # only visual
-            # cond = self._encode_caption(caption)      # only caption
-            # cond = (visual, self._encode_caption(caption))    # visual+caption
-            # cond = (self._encode_caption(caption), visual)      #caption+visual
+        elif self.cond_type == "caption":
+            cond = self._encode_caption(caption)
+        elif self.cond_type == "v_c":
+            cond = (visual, self._encode_caption(caption))
+        elif self.cond_type == "c_v":
+            cond = (self._encode_caption(caption), visual)
         else:
             raise NotImplementedError
 
-        if self.concat_blurry:
-            blurry_img = get_blurry_image(prmat2c, ratio=self.concat_ratio)
-            exit(0)
-            loss = self.ldm.loss(prmat2c, cond, cond_concat=blurry_img)
-
-        else:
-            loss = self.ldm.loss(prmat2c, cond)
+        loss = self.ldm.loss(prmat2c, cond)
         return {"loss": loss}

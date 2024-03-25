@@ -82,10 +82,10 @@ class DataSampleNpz:
             print(self.song_idx, self.db_pos)
 
         self.chord = data["chord"].astype(np.int32)
-        self.visual = torch.load(f'/network_space/storage43/qinyiming/test/CLIP2Video/new_raw_video_feats/{self.song_idx}.pth', map_location='cpu')
-        self.caption = np.load(f'/network_space/storage43/lisizhe/dataset/bgm909/caption_feats/{self.song_idx}.npy')
+        self.visual = torch.load(f'./data/bgm909/new_raw_video_feats/{self.song_idx}.pth', map_location='cpu')
+        self.caption = np.load(f'./data/bgm909/caption_feats/{self.song_idx}.npy')
         
-        shot_path = f"/network_space/storage43/lisizhe/dataset/bgm909/detection/{self.song_idx}_scenes.txt"
+        shot_path = f"./data/bgm909/detection/{self.song_idx}_scenes.txt"
         shot_cnt = 0
         with open(shot_path, "r") as f:
             while f.readline():

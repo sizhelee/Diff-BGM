@@ -42,7 +42,7 @@ params = AttrDict(
     img_w=128,
 
     # conditional
-    cond_type="chord",
+    cond_type="visual", # {visual, caption, v_c, c_v}
 
     # whether to use chord encoder from polydis
     use_enc=use_enc,
