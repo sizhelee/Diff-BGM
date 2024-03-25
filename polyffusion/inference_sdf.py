@@ -72,7 +72,7 @@ def dummy_cond_input(length, params):
 
 
 def get_data_preprocessed(song, data_type):
-    prmat2c, pnotree, chord, prmat, visual, caption = song.get_whole_song_data()
+    prmat2c, pnotree, chord, prmat, visual, caption, shot_cnt = song.get_whole_song_data()
     prmat2c_np = prmat2c.cpu().numpy()
     pnotree_np = pnotree.cpu().numpy()
     prmat2c_to_midi_file(prmat2c_np, f"exp/{data_type}_prmat2c.mid")
@@ -86,40 +86,20 @@ def get_data_preprocessed(song, data_type):
         return prmat2c.to(device), pnotree.to(device), None, prmat.to(device), visual.to(device), caption.to(device)
 
 
-# def choose_song_from_val_dl(data_type, use_track=[0, 1, 2]):
-#     split_fpath = join(TRAIN_SPLIT_DIR, "pop909_new.pickle")
-#     with open(split_fpath, "rb") as f:
-#         split = pickle.load(f)
-#     print(split[1])
-#     num = int(input("choose one from pop909:"))
-#     song_fn = split[1][num]
-#     print(song_fn)
-
-#     song = DataSampleNpz(song_fn, use_track)
-#     return *get_data_preprocessed(song, data_type), song_fn
-
-
-def choose_song_from_val_dl(ind, data_type, use_track=[0, 1, 2]):
+def choose_song_from_val_dl(ind=-1, data_type=None, use_track=[0, 1, 2]):
     split_fpath = join(TRAIN_SPLIT_DIR, "pop909_new.pickle")
     with open(split_fpath, "rb") as f:
         split = pickle.load(f)
     print(split[1])
-    num = ind
+    if ind == -1:
+        num = int(input("choose one from pop909:"))
+    else:
+        num = ind
     song_fn = split[1][num]
     print(song_fn)
 
     song = DataSampleNpz(song_fn, use_track)
     return *get_data_preprocessed(song, data_type), song_fn
-
-    # caption_ls = os.listdir('/network_space/storage43/lisizhe/dataset/symmv/caption_feats/')
-    # visual_ls = os.listdir('/network_space/storage43/qinyiming/Data/sym_video_feats/')
-    # song_idx = song_fn[:song_fn.find(".")]
-    # print(song_idx)
-    # if f'{song_idx}.npy' in caption_ls and f'{song_idx}.pth' in visual_ls:
-    #     song = DataSampleNpz(song_fn, use_track)
-    #     return *get_data_preprocessed(song, data_type), song_fn
-    # else:
-    #     return
 
 
 def choose_song_from_val_dl_musicalion(data_type):
@@ -392,311 +372,6 @@ class Experiments:
                 show_image(noised, f"exp/img/q{s1}.png")
 
 
-# if __name__ == "__main__":
-#     parser.add_argument(
-#         "--model_dir", help='directory in which trained model checkpoints are stored'
-#     )
-#     parser.add_argument(
-#         "--uncond_scale",
-#         default=1.,
-#         help="unconditional scale for classifier-free guidance"
-#     )
-#     parser.add_argument("--seed", help="use a specific seed for inference")
-#     parser.add_argument(
-#         "--autoreg",
-#         action="store_true",
-#         help="autoregressively inpaint the music segments"
-#     )
-#     parser.add_argument(
-#         "--from_dataset",
-#         default="pop909",
-#         help="choose condition from a dataset {pop909(default), musicalion}"
-#     )
-#     parser.add_argument(
-#         "--from_midi", help="choose condition from a specific midi file"
-#     )
-#     parser.add_argument(
-#         "--inpaint_from_midi",
-#         help=
-#         "choose the midi file for inpainting. if unspecified, use a song from dataset"
-#     )
-#     parser.add_argument(
-#         "--inpaint_from_dataset",
-#         default="pop909",
-#         help="inpaint a song from a dataset {pop909(default), musicalion}"
-#     )
-#     parser.add_argument(
-#         "--inpaint_pop909_use_track",
-#         help="which tracks to use as original song for inpainting (default: 0,1,2)"
-#     )
-#     parser.add_argument(
-#         "--inpaint_type", help="inpaint a song, type: {remaining, below, above, bars}"
-#     )
-#     parser.add_argument("--length", default=0, help="the generated length (in 8-bars)")
-#     # you usually don't need to use the following args
-#     parser.add_argument(
-#         "--show_image",
-#         action="store_true",
-#         help="whether to show the images of generated piano-roll"
-#     )
-#     parser.add_argument(
-#         "--polydis_recon",
-#         action="store_true",
-#         help=
-#         "whether to use polydis to reconstruct the generated midi from diffusion model"
-#     )
-#     parser.add_argument(
-#         "--chkpt_name",
-#         default="weights_best.pt",
-#         help="which specific checkpoint to use (default: weights_best.pt)"
-#     )
-#     parser.add_argument(
-#         "--only_q_imgs",
-#         action="store_true",
-#         help="only show q_sample results (for testing)"
-#     )
-#     parser.add_argument(
-#         "--split_inpaint",
-#         action="store_true",
-#         help=
-#         "only split inpainted result according to the inpaint type (for testing). (inpaint: original, condition: inpainted)"
-#     )
-#     parser.add_argument(
-#         "--polydis_txt",
-#         action="store_true",
-#         help="use polydis to generate texture-like MIDI. For comparison."
-#     )
-#     args = parser.parse_args()
-#     model_label = Path(args.model_dir).parent.name
-#     print(f"model_label: {model_label}")
-
-#     if args.seed is not None:
-#         SEED = int(args.seed)
-#         print(f"fixed SEED = {SEED}")
-#         torch.manual_seed(SEED)
-#         np.random.seed(SEED)
-#         random.seed(SEED)
-
-#     # params ready
-#     with open(f"{args.model_dir}/params.json", "r") as params_file:
-#         params = json.load(params_file)
-#     params = AttrDict(params)
-
-#     # model ready
-#     autoencoder = None
-#     unet_model = UNetModel(
-#         in_channels=params.in_channels,
-#         out_channels=params.out_channels,
-#         channels=params.channels,
-#         attention_levels=params.attention_levels,
-#         n_res_blocks=params.n_res_blocks,
-#         channel_multipliers=params.channel_multipliers,
-#         n_heads=params.n_heads,
-#         tf_layers=params.tf_layers,
-#         d_cond=params.d_cond
-#     )
-
-#     ldm_model = LatentDiffusion(
-#         linear_start=params.linear_start,
-#         linear_end=params.linear_end,
-#         n_steps=params.n_steps,
-#         latent_scaling_factor=params.latent_scaling_factor,
-#         autoencoder=autoencoder,
-#         unet_model=unet_model
-#     )
-
-#     # inpaint input ready
-#     prmat2c_inp = None
-#     if args.inpaint_type is not None:
-#         # choose the song to be inpainted
-#         print("getting the song to be inpainted...")
-#         if args.inpaint_from_midi is not None:
-#             song_fn_inp = args.inpaint_from_midi
-#             data_inp = get_data_for_single_midi(
-#                 args.inpaint_from_midi, f"exp/chords_extracted_inpaint.out"
-#             )
-#             data_sample_inp = DataSample(data_inp)
-#             prmat2c_inp, _, _, _ = get_data_preprocessed(data_sample_inp, "inpaint")
-#         elif args.inpaint_from_dataset == "musicalion":
-#             prmat2c_inp, _, _, _, song_fn_inp = choose_song_from_val_dl_musicalion(
-#                 "inpaint"
-#             )  # here chd is None
-#         elif args.inpaint_from_dataset == "pop909":
-#             use_track_inp = [0, 1, 2]
-#             if args.inpaint_pop909_use_track is not None:
-#                 use_track_inp = [
-#                     int(x) for x in args.inpaint_pop909_use_track.split(",")
-#                 ]
-#             prmat2c_inp, _, _, _, song_fn_inp = choose_song_from_val_dl(
-#                 "inpaint", use_track_inp
-#             )
-#         else:
-#             raise NotImplementedError
-#         print(f"Inpainting midi file: {song_fn_inp}")
-
-#     # condition data ready
-#     if float(args.uncond_scale) == 0.:
-#         print("unconditional generation...")
-#         if int(args.length) > 0:
-#             length = int(args.length)
-#         elif prmat2c_inp is not None:
-#             length = prmat2c_inp.shape[0]
-#         else:
-#             length = int(input("how many 8-bars would you like to generate?"))
-#         prmat2c, pnotree, chd, prmat = dummy_cond_input(length, params)
-#     else:
-#         print("getting the condition from...")
-#         if args.from_midi is not None:
-#             song_fn = args.from_midi
-#             data = get_data_for_single_midi(args.from_midi, f"exp/chords_extracted.out")
-#             data_sample = DataSample(data)
-#             prmat2c, pnotree, chd, prmat = get_data_preprocessed(data_sample, "cond")
-#         elif args.from_dataset == "musicalion":
-#             prmat2c, pnotree, chd, prmat, song_fn = choose_song_from_val_dl_musicalion(
-#                 "cond"
-#             )  # here chd is None
-#             assert params.cond_type != "chord"
-#         elif args.from_dataset == "pop909":
-#             prmat2c, pnotree, chd, prmat, visual, song_fn = choose_song_from_val_dl("cond")
-#         else:
-#             raise NotImplementedError
-#         print(f"using the {params.cond_type} of midi file: {song_fn}")
-
-#     # for demonstrating diffusion process
-#     if args.split_inpaint:
-#         print("only split prmat2c according to the inpainting type")
-#         mask = get_mask(orig=prmat2c_inp, inpaint_type=args.inpaint_type)
-#         prmat2c_to_midi_file(prmat2c, f"{args.from_midi[:-4]}_split.mid", inp_mask=mask)
-#         exit(0)
-
-#     # for polydis comparison
-#     if args.polydis_txt:
-#         aftertouch = PolydisAftertouch()
-#         polydis_prmat = prmat.view(-1, 32, 128)
-#         print(polydis_prmat.shape)
-#         prmat_to_midi_file(polydis_prmat, f"exp/polydis_txt_prmat.mid")
-#         polydis_chd = chd.view(-1, 8, 36)  # 2-bars
-#         aftertouch.reconstruct(
-#             polydis_prmat, polydis_chd, f"exp/polydis_txt", chd_sample=True
-#         )
-#         exit(0)
-
-#     pnotree_enc, pnotree_dec = None, None
-#     chord_enc, chord_dec = None, None
-#     txt_enc = None
-#     if params.cond_type == "pnotree":
-#         pnotree_enc, pnotree_dec = load_pretrained_pnotree_enc_dec(
-#             PT_PNOTREE_PATH, 20, device
-#         )
-#     elif params.cond_type == "chord":
-#         if params.use_enc:
-#             chord_enc, chord_dec = load_pretrained_chd_enc_dec(
-#                 PT_CHD_8BAR_PATH, params.chd_input_dim, params.chd_z_input_dim,
-#                 params.chd_hidden_dim, params.chd_z_dim, params.chd_n_step
-#             )
-#             visual_enc = VisualEncoder()
-#     elif params.cond_type == "txt":
-#         if params.use_enc:
-#             txt_enc = load_pretrained_txt_enc(
-#                 PT_POLYDIS_PATH, params.txt_emb_size, params.txt_hidden_dim,
-#                 params.txt_z_dim, params.txt_num_channel
-#             )
-#     else:
-#         raise NotImplementedError
-
-#     model = Polyffusion_SDF.load_trained(
-#         ldm_model, f"{args.model_dir}/chkpts/{args.chkpt_name}", params.cond_type,
-#         params.cond_mode, chord_enc, chord_dec, pnotree_enc, pnotree_dec, txt_enc, visual_enc
-#     ).to(device)
-#     sampler = SDFSampler(
-#         model.ldm,
-#         is_autocast=params.fp16,
-#         is_show_image=args.show_image,
-#     )
-#     expmt = Experiments(model_label, params, sampler)
-#     if args.only_q_imgs:
-#         expmt.show_q_imgs(prmat2c)
-#         exit(0)
-
-#     # conditions ready
-#     polydis_chd = None
-#     cond_mid = None  # for autoregressive inpainting
-#     if params.cond_type == "pnotree":
-#         assert pnotree is not None
-#         cond = model._encode_pnotree(pnotree)
-#         if args.autoreg:
-#             cond_mid = model._encode_pnotree(get_autoreg_data(pnotree))
-#         pnotree_recon = model._decode_pnotree(cond)
-#         estx_to_midi_file(pnotree_recon, f"exp/pnotree_recon.mid")
-#     elif params.cond_type == "chord":
-#         # print(chd.shape)
-#         assert chd is not None
-#         # cond = model._encode_chord(chd)
-#         cond = model._encode_video(visual)
-#         if args.autoreg:
-#             cond_mid = model._encode_chord(get_autoreg_data(chd))
-#         # print(chd_enc.shape)
-#         polydis_chd = chd.view(-1, 8, 36)  # 2-bars
-#         # print(polydis_chd.shape)
-#     elif params.cond_type == "txt":
-#         assert prmat is not None
-#         cond = model._encode_txt(prmat)
-#         if args.autoreg:
-#             cond_mid = model._encode_txt(get_autoreg_data(prmat))
-#     else:
-#         raise NotImplementedError
-
-#     # concat conditioning
-#     cond_concat = None
-#     if hasattr(params, 'concat_blurry') and params.concat_blurry:
-#         assert prmat2c is not None
-#         show_image(prmat2c, "exp/img/cond_concat_orig.png")
-#         cond_concat = get_blurry_image(prmat2c, params.concat_ratio)
-#         show_image(cond_concat, "exp/img/cond_concat.png")
-
-#     if params.cond_mode == "uncond":
-#         print("The model is trained unconditionally, ignoring conditions...")
-#         cond = -torch.ones_like(cond).to(device)
-
-#     if int(args.length) > 0:
-#         cond = cond[: int(args.length)]
-#         print(f"selected cond shape: {cond.shape}")
-
-#     # generate!
-#     if args.inpaint_type is not None:
-#         assert isinstance(prmat2c_inp, torch.Tensor)
-#         # crop shape
-#         if cond.shape[0] > prmat2c_inp.shape[0]:
-#             cond = cond[: prmat2c_inp.shape[0]]
-#         elif cond.shape[0] < prmat2c_inp.shape[0]:
-#             prmat2c_inp = prmat2c_inp[: cond.shape[0]]
-
-#         # inpaint!
-#         expmt.inpaint(
-#             orig=prmat2c_inp,
-#             inpaint_type=args.inpaint_type,
-#             cond=cond,
-#             cond_mid=cond_mid,
-#             autoreg=args.autoreg,
-#             orig_noise=None,
-#             uncond_scale=float(args.uncond_scale),
-#             cond_concat=cond_concat
-#         )
-#     else:
-#         expmt.generate(
-#             cond=cond,
-#             cond_mid=cond_mid,
-#             uncond_scale=float(args.uncond_scale),
-#             autoreg=args.autoreg,
-#             polydis_recon=args.polydis_recon,
-#             polydis_chd=polydis_chd,
-#             cond_concat=cond_concat
-#         )
-
-
-"""
-Coarsely using loop for inference
-"""
 if __name__ == "__main__":
     parser.add_argument(
         "--model_dir", help='directory in which trained model checkpoints are stored'
@@ -811,70 +486,21 @@ if __name__ == "__main__":
     )
 
 
-    for ind in range(42):
+    for ind in range(50):
         if ind==29:
             continue
         # inpaint input ready
         prmat2c_inp = None
-        if args.inpaint_type is not None:
-            # choose the song to be inpainted
-            print("getting the song to be inpainted...")
-            if args.inpaint_from_midi is not None:
-                song_fn_inp = args.inpaint_from_midi
-                data_inp = get_data_for_single_midi(
-                    args.inpaint_from_midi, f"exp/chords_extracted_inpaint.out"
-                )
-                data_sample_inp = DataSample(data_inp)
-                prmat2c_inp, _, _, _ = get_data_preprocessed(data_sample_inp, "inpaint")
-            elif args.inpaint_from_dataset == "musicalion":
-                prmat2c_inp, _, _, _, song_fn_inp = choose_song_from_val_dl_musicalion(
-                    "inpaint"
-                )  # here chd is None
-            elif args.inpaint_from_dataset == "pop909":
-                use_track_inp = [0, 1, 2]
-                if args.inpaint_pop909_use_track is not None:
-                    use_track_inp = [
-                        int(x) for x in args.inpaint_pop909_use_track.split(",")
-                    ]
-                prmat2c_inp, _, _, _, song_fn_inp = choose_song_from_val_dl(
-                    ind, "inpaint", use_track_inp
-                )
-            else:
-                raise NotImplementedError
-            print(f"Inpainting midi file: {song_fn_inp}")
 
         # condition data ready
-        # if float(args.uncond_scale) == 0.:
-        if False:
-            print("unconditional generation...")
-            if int(args.length) > 0:
-                length = int(args.length)
-            elif prmat2c_inp is not None:
-                length = prmat2c_inp.shape[0]
-            else:
-                length = int(input("how many 8-bars would you like to generate?"))
-            prmat2c, pnotree, chd, prmat = dummy_cond_input(length, params)
-        else:
-            print("getting the condition from...")
-            if args.from_midi is not None:
-                song_fn = args.from_midi
-                data = get_data_for_single_midi(args.from_midi, f"exp/chords_extracted.out")
-                data_sample = DataSample(data)
-                prmat2c, pnotree, chd, prmat = get_data_preprocessed(data_sample, "cond")
-            elif args.from_dataset == "musicalion":
-                prmat2c, pnotree, chd, prmat, song_fn = choose_song_from_val_dl_musicalion(
-                    "cond"
-                )  # here chd is None
-                assert params.cond_type != "chord"
-            elif args.from_dataset == "pop909":
-                try:
-                    prmat2c, pnotree, chd, prmat, visual, caption, song_fn = choose_song_from_val_dl(ind, "cond")
-                    song_idx = song_fn[:song_fn.find(".")]
-                except:
-                    continue
-            else:
-                raise NotImplementedError
-            print(f"using the {params.cond_type} of midi file: {song_fn}")
+        print("getting the condition from...")
+        try:
+            prmat2c, pnotree, chd, prmat, visual, caption, song_fn = choose_song_from_val_dl(ind, "cond")
+            song_idx = song_fn[:song_fn.find(".")]
+        except:
+            continue
+
+        print(f"using the {params.cond_type} of midi file: {song_fn}")
 
         # for demonstrating diffusion process
         if args.split_inpaint:
@@ -895,33 +521,9 @@ if __name__ == "__main__":
             )
             exit(0)
 
-        pnotree_enc, pnotree_dec = None, None
-        chord_enc, chord_dec = None, None
-        txt_enc = None
-        if params.cond_type == "pnotree":
-            pnotree_enc, pnotree_dec = load_pretrained_pnotree_enc_dec(
-                PT_PNOTREE_PATH, 20, device
-            )
-        elif params.cond_type == "chord":
-            if params.use_enc:
-                chord_enc, chord_dec = load_pretrained_chd_enc_dec(
-                    PT_CHD_8BAR_PATH, params.chd_input_dim, params.chd_z_input_dim,
-                    params.chd_hidden_dim, params.chd_z_dim, params.chd_n_step
-                )
-                visual_enc = VisualEncoder()
-                caption_enc = nn.Linear(in_features=768, out_features=512, bias=True)
-        elif params.cond_type == "txt":
-            if params.use_enc:
-                txt_enc = load_pretrained_txt_enc(
-                    PT_POLYDIS_PATH, params.txt_emb_size, params.txt_hidden_dim,
-                    params.txt_z_dim, params.txt_num_channel
-                )
-        else:
-            raise NotImplementedError
-
         model = Polyffusion_SDF.load_trained(
             ldm_model, f"{args.model_dir}/chkpts/{args.chkpt_name}", params.cond_type,
-            params.cond_mode, chord_enc, chord_dec, pnotree_enc, pnotree_dec, txt_enc, visual_enc
+            params.cond_mode
         ).to(device)
         sampler = SDFSampler(
             model.ldm,
@@ -936,31 +538,14 @@ if __name__ == "__main__":
         # conditions ready
         polydis_chd = None
         cond_mid = None  # for autoregressive inpainting
-        if params.cond_type == "pnotree":
-            assert pnotree is not None
-            cond = model._encode_pnotree(pnotree)
-            if args.autoreg:
-                cond_mid = model._encode_pnotree(get_autoreg_data(pnotree))
-            pnotree_recon = model._decode_pnotree(cond)
-            estx_to_midi_file(pnotree_recon, f"exp/pnotree_recon.mid")
-        elif params.cond_type == "chord":
-            # print(chd.shape)
-            assert chd is not None
-            # cond = model._encode_chord(chd)
-            # cond = visual
-            # cond = model._encode_caption(caption)
+        if params.cond_type == "visual":
+            cond = visual     # only visual
+        elif params.cond_type == "caption":
+            cond = model._encode_caption(caption)
+        elif params.cond_type == "v_c":
             cond = (visual, model._encode_caption(caption))
-            # cond = (model._encode_caption(caption), visual)
-            if args.autoreg:
-                cond_mid = model._encode_chord(get_autoreg_data(chd))
-            # print(chd_enc.shape)
-            polydis_chd = chd.view(-1, 8, 36)  # 2-bars
-            # print(polydis_chd.shape)
-        elif params.cond_type == "txt":
-            assert prmat is not None
-            cond = model._encode_txt(prmat)
-            if args.autoreg:
-                cond_mid = model._encode_txt(get_autoreg_data(prmat))
+        elif params.cond_type == "c_v":
+            cond = (model._encode_caption(caption), visual)
         else:
             raise NotImplementedError
 
@@ -981,33 +566,13 @@ if __name__ == "__main__":
             print(f"selected cond shape: {cond.shape}")
 
         # generate!
-        if args.inpaint_type is not None:
-            assert isinstance(prmat2c_inp, torch.Tensor)
-            # crop shape
-            if cond.shape[0] > prmat2c_inp.shape[0]:
-                cond = cond[: prmat2c_inp.shape[0]]
-            elif cond.shape[0] < prmat2c_inp.shape[0]:
-                prmat2c_inp = prmat2c_inp[: cond.shape[0]]
-
-            # inpaint!
-            expmt.inpaint(
-                orig=prmat2c_inp,
-                inpaint_type=args.inpaint_type,
-                cond=cond,
-                cond_mid=cond_mid,
-                autoreg=args.autoreg,
-                orig_noise=None,
-                uncond_scale=float(args.uncond_scale),
-                cond_concat=cond_concat
-            )
-        else:
-            expmt.generate(
-                cond=cond,
-                cond_mid=cond_mid,
-                uncond_scale=float(args.uncond_scale),
-                autoreg=args.autoreg,
-                polydis_recon=args.polydis_recon,
-                polydis_chd=polydis_chd,
-                cond_concat=cond_concat,
-                song_idx=song_idx,
-            )
+        expmt.generate(
+            cond=cond,
+            cond_mid=cond_mid,
+            uncond_scale=float(args.uncond_scale),
+            autoreg=args.autoreg,
+            polydis_recon=args.polydis_recon,
+            polydis_chd=polydis_chd,
+            cond_concat=cond_concat,
+            song_idx=song_idx,
+        )

@@ -8,7 +8,7 @@ import csv
 from tqdm import tqdm
 from os.path import join
 
-from chord_extractor import extract_chords_from_midi_file
+# from chord_extractor import extract_chords_from_midi_file
 
 # duration of one beat
 ONE_BEAT = 0.5
@@ -226,7 +226,7 @@ def get_data_for_single_midi(fpath, chdfile_path):
 
     note_mat = get_note_matrix(music)
     note_mat = dedup_note_matrix(note_mat)
-    extract_chords_from_midi_file(fpath, chdfile_path)
+    # extract_chords_from_midi_file(fpath, chdfile_path)
     chord = get_chord_matrix(chdfile_path)
 
     db_pos, db_pos_filter = get_downbeat_pos_and_filter(music, fpath)

@@ -146,6 +146,7 @@ class CrossAttention(nn.Module):
         d_cond: int,
         n_heads: int,
         d_head: int,
+        w_size: int = 2,
         is_inplace: bool = True
     ):
         """
@@ -161,6 +162,8 @@ class CrossAttention(nn.Module):
         self.is_inplace = is_inplace
         self.n_heads = n_heads
         self.d_head = d_head
+
+        self.w_size = w_size
 
         # Attention scaling factor
         self.scale = d_head**-0.5
@@ -273,11 +276,10 @@ class CrossAttention(nn.Module):
         k = k.view(*k.shape[: 2], self.n_heads, -1)
         v = v.view(*v.shape[: 2], self.n_heads, -1)
 
-        w_size = 2
         seg_len = q.shape[1]
         mask_one = torch.zeros(q.shape[1], k.shape[1])
-        for i in range(w_size):
-            mask_one[seg_len*i//w_size:seg_len*(i+1)//w_size, k.shape[1]*i//w_size:k.shape[1]*(i+1)//w_size] = 1
+        for i in range(self.w_size):
+            mask_one[seg_len*i//self.w_size:seg_len*(i+1)//self.w_size, k.shape[1]*i//self.w_size:k.shape[1]*(i+1)//self.w_size] = 1
         mask = mask_one.unsqueeze(0).unsqueeze(0)
         mask = mask.expand(q.shape[0], q.shape[2], seg_len, k.shape[1]).cuda()
         mask = (mask==1)

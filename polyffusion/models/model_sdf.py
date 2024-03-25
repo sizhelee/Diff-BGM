@@ -36,19 +36,12 @@ class Polyffusion_SDF(nn.Module):
         chkpt_fpath,
         cond_type,
         cond_mode="cond",
-        chord_enc=None,
-        chord_dec=None,
-        pnotree_enc=None,
-        pnotree_dec=None,
-        txt_enc=None,
-        visual_enc=None,
     ):
         model = cls(
-            ldm, cond_type, cond_mode, chord_enc, chord_dec, visual_enc, pnotree_enc, pnotree_dec,
-            txt_enc
+            ldm, cond_type, cond_mode
         )
         trained_leaner = torch.load(chkpt_fpath)
-        model.load_state_dict(trained_leaner["model"])
+        model.load_state_dict(trained_leaner["model"], strict=False)
         return model
 
     def p_sample(self, xt: torch.Tensor, t: torch.Tensor):
