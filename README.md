@@ -64,7 +64,7 @@ ffmpeg -i <wav file> -b:a <bit rate> <mp3 file>
 ffmpeg -i <video file> -i <mp3 file> -c:a aac -map 0:v:0 -map 1:a:0 <output file>
 ```
 
-See our demo!
+See our [demo](./video.mp4)!
 
 <video width="320" height="240" controls>
   <source src="./video.mp4" type="video/mp4">
