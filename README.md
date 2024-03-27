@@ -6,7 +6,7 @@ By Sizhe Li, Yiming Qin, Minghang Zheng, Xin Jin, Yang Liu.
 
 ![](./Diff-BGM.png)
 
-- Thanks for the code structure from [diffbgm](https://github.com/aik2mlj/diffbgm/tree/sdf_prmat2c%2Bpop909)
+- Thanks for the code structure from [Polyffusion](https://github.com/aik2mlj/polyffusion)
 
 ## 1. Installation
 
@@ -20,12 +20,12 @@ pip isntall -e diffbgm/mir_eval
 
 ### Preparations
 
-1. The extracted features of the dataset POP909 can be accessed [here](https://yukisaki-my.sharepoint.com/personal/aik2_yukisaki_io/_layouts/15/onedrive.aspx?id=%2Fpersonal%2Faik2%5Fyukisaki%5Fio%2FDocuments%2FShare%2Fdiffbgm%2FPOP909%5F4%5Fbin%5Fpnt%5F8bar%2Ezip&parent=%2Fpersonal%2Faik2%5Fyukisaki%5Fio%2FDocuments%2FShare%2Fdiffbgm&ga=1). Please put it under `/data/` after extraction.
+1. The extracted features of the dataset POP909 can be accessed [here](https://yukisaki-my.sharepoint.com/:u:/g/personal/aik2_yukisaki_io/EdUovlRZvExJrGatAR8BlTsBDC8udJiuhnIimPuD2PQ3FQ?e=WwD7Dl). Please put it under `/data/` after extraction.
 
 2. The extracted features of the dataset BGM909 can be accessed [here](https://drive.google.com/drive/folders/1zRNROuTxVNhJfqeyqRzPoIY60z5zLaHK?usp=sharing). Please put them under `/data/bgm909/` after extraction. We use [VideoCLIP](https://github.com/CryhanFang/CLIP2Video) to extract the video feature, use [BLIP](https://github.com/salesforce/BLIP) to gain the video caption then use [Bert-base-uncased](https://huggingface.co/google-bert/bert-base-uncased) as the language encoder and use [TransNetV2](https://github.com/soCzech/TransNetV2) to capture the shot.   
 We also provide the original captions [here](https://drive.google.com/drive/folders/1q2F7jOfJ6Y0eD-hM_pbZRuP7Jnk-1r7u?usp=sharing).
 
-3. The needed pre-trained models for training can be accessed [here](https://yukisaki-my.sharepoint.com/personal/aik2_yukisaki_io/_layouts/15/onedrive.aspx?id=%2Fpersonal%2Faik2%5Fyukisaki%5Fio%2FDocuments%2FShare%2Fdiffbgm%2Fpretrained%5Fmodels%5Ffor%5Fdiffbgm%2Ezip&parent=%2Fpersonal%2Faik2%5Fyukisaki%5Fio%2FDocuments%2FShare%2Fdiffbgm&ga=1). Please put them under `/pretrained/` after extraction.
+3. The needed pre-trained models for training can be accessed [here](https://yukisaki-my.sharepoint.com/:u:/g/personal/aik2_yukisaki_io/Eca406YwV1tMgwHdoepC7G8B5l-4GRBGv7TzrI9OOg3eIA?e=uecJdU). Please put them under `/pretrained/` after extraction.
 
 ### Commands
 
