@@ -49,9 +49,9 @@ To reproduce the metrics in our original paper, please refer to `/diffbgm/test.i
 | -------- | ---- | --- | -- | ---- | ------ | 
 | Diff-BGM (original) | 2.840 | 0.601 | 0.521 | 46.79 | [weights](https://drive.google.com/file/d/1QzmJjNsSDQKpAEATD3XbSZalI1AULx1O/view?usp=sharing) |
 | Diff-BGM (only visual) | 2.835 | 0.514 | 0.396 | 46.26 | [weights](https://drive.google.com/file/d/1mtX24RLViblmSBbwx1WPqzQnSLnat5i3/view?usp=sharing) |
-| Diff-BGM (w/o SAC-Att) | 2.721 | 0.789 | 0.523 | 43.57 | [weights](https://drive.google.com/file/d/1q39Azhty0lznhfdVMWxplUkYN7CE0VmA/view?usp=sharing) |
+<!-- | Diff-BGM (w/o SAC-Att) | 2.721 | 0.789 | 0.523 | 43.57 | [weights](https://drive.google.com/file/d/1q39Azhty0lznhfdVMWxplUkYN7CE0VmA/view?usp=sharing) | -->
 
-We provide the generation results [here](https://drive.google.com/drive/folders/1kYQLAmw8-zyBx43RW7aUSE8VXcFDxkez?usp=sharing).
+We provide our generation results [here](https://drive.google.com/drive/folders/1kYQLAmw8-zyBx43RW7aUSE8VXcFDxkez?usp=sharing).
 
 ## 5. Make a Demo by yourself!
 
