@@ -5,6 +5,8 @@
 /exp/
 /eval/
 /wandb/
+/diffbgm/caption+visual_att_4_feats/
+/diffbgm/gt_feats/
 
 
 # Byte-compiled / optimized / DLL files
