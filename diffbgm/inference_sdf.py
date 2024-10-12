@@ -50,7 +50,6 @@ from polydis_aftertouch import PolydisAftertouch
 from data.datasample import DataSample
 from data.midi_to_data import get_data_for_single_midi
 
-from models.visual_encoder import VisualEncoder
 import torch.nn as nn
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
